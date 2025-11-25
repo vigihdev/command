@@ -1,11 +1,10 @@
-# Composer
 /vendor/
 composer.lock
 .vscode/
 .DS_Store
 .phpunit.result.cache
 /coverage/
-/dev.php
+dev.php
 GEMINI.md
 .amazonq/
 .keys
