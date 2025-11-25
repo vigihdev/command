@@ -10,6 +10,7 @@ use Symfony\Component\Filesystem\Path;
 use Vigihdev\Command\Console\Git\{PushGitCommand};
 use Vigihdev\Command\Console\Repository\ListRepositoryCommand;
 use Vigihdev\Command\Console\Satis\{ThrubusSatisBuildCommand, LocalSatisBuildCommand};
+use Vigihdev\Command\Console\Vscode\{OpenProjectVscodeCommand, OpenRepositoryVscodeCommand};
 use VigihDev\SymfonyBridge\Config\ConfigBridge;
 use VigihDev\SymfonyBridge\Config\Service\ServiceLocator;
 use Vigihdev\Encryption\Contracts\EnvironmentEncryptorServiceContract;
@@ -52,5 +53,9 @@ $app->add(new EnvironmentBeautifulCommand());
 
 // Repository Group
 $app->add(new ListRepositoryCommand());
+
+// Vscode Group
+$app->add(new OpenRepositoryVscodeCommand());
+$app->add(new OpenProjectVscodeCommand());
 
 $app->run();
