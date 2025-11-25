@@ -10,3 +10,4 @@ GEMINI.md
 .amazonq/
 .keys
 .env*
+/resource/
