@@ -1,0 +1,3 @@
+# services.yaml
+imports:
+  - { resource: "packages/security.yaml" }

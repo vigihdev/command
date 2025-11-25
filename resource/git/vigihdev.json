@@ -1,0 +1,22 @@
+[
+    "vigihdev/dto",
+    "vigihdev/contracts",
+    "vigihdev/wp-post-type",
+    "vigihdev/seo-lite",
+    "vigihdev/wp-assets",
+    "vigihdev/wp-kernel",
+    "vigihdev/support",
+    "vigihdev/core-render",
+    "vigihdev/grunt-task",
+    "vigihdev/types",
+    "vigihdev/themes-bundle",
+    "vigihdev/bootstrap4-bundle",
+    "vigihdev/assets-examples",
+    "vigihdev/assets-mini",
+    "vigihdev/examples",
+    "vigihdev/yii2-bridge-db",
+    "vigihdev/yii2-bridge-active-record",
+    "vigihdev/ssh-client",
+    "vigihdev/symfony-bridge-config",
+    "vigihdev/encryption"
+]
