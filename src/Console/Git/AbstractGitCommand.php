@@ -13,6 +13,7 @@ abstract class AbstractGitCommand extends Command
 
 
     /**
+     * 
      *
      * @return array<string,string>
      */
@@ -29,6 +30,14 @@ abstract class AbstractGitCommand extends Command
         return is_array($packages) ? $packages : [];
     }
 
+
+    /**
+     * 
+     * Get packages from json file
+     * 
+     * @param string $filename
+     * @return array<string,string>
+     */
     protected function getPackages(string $filename): array
     {
 

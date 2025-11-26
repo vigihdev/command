@@ -1,3 +1,5 @@
 # services.yaml
 imports:
+  - { resource: "packages/_template.yaml" }
   - { resource: "packages/security.yaml" }
+  - { resource: "packages/satis.yaml" }

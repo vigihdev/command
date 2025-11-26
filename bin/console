@@ -9,8 +9,9 @@ use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\Filesystem\Path;
 use Vigihdev\Command\Console\Git\{PushGitCommand};
 use Vigihdev\Command\Console\Repository\ListRepositoryCommand;
-use Vigihdev\Command\Console\Satis\{ThrubusSatisBuildCommand, LocalSatisBuildCommand};
+use Vigihdev\Command\Console\Satis\{ThrubusSatisBuildCommand, LocalSatisBuildCommand, BuildSatisCommand};
 use Vigihdev\Command\Console\Vscode\{OpenProjectVscodeCommand, OpenRepositoryVscodeCommand};
+use Vigihdev\Command\Contracts\SatisClientManagerInterface;
 use VigihDev\SymfonyBridge\Config\ConfigBridge;
 use VigihDev\SymfonyBridge\Config\Service\ServiceLocator;
 use Vigihdev\Encryption\Contracts\EnvironmentEncryptorServiceContract;
@@ -35,9 +36,15 @@ ConfigBridge::boot(
 
 // Application
 $app = new Application();
+
 // Satis Group
+if (! ServiceLocator::has(SatisClientManagerInterface::class)) {
+    throw new RuntimeException("SatisClientManagerInterface service not found in ServiceLocator");
+}
+$satisClient = ServiceLocator::get(SatisClientManagerInterface::class);
 $app->add(new ThrubusSatisBuildCommand());
 $app->add(new LocalSatisBuildCommand());
+$app->add(new BuildSatisCommand(satisClient: $satisClient));
 
 // Git Group
 $app->add(new PushGitCommand());

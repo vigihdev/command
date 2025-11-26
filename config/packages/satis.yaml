@@ -1,0 +1,34 @@
+# satis.yaml
+services:
+  thrubus.auth.satis:
+    parent: auth.satis.prototype
+    arguments:
+      $username: "%env(SATIS_AUTH_THRUBUS_USERNAME)%"
+      $password: "%env(SATIS_AUTH_THRUBUS_PASSWORD)%"
+
+  local.auth.satis:
+    parent: auth.satis.prototype
+    arguments:
+      $username: "%env(SATIS_AUTH_LOCAL_USERNAME)%"
+      $password: "%env(SATIS_AUTH_LOCAL_PASSWORD)%"
+
+  local.client.satis:
+    parent: client.satis.prototype
+    arguments:
+      $baseUri: "%env(SATIS_LOCAL_BASE_URI)%"
+      $auth: "@local.auth.satis"
+
+  thrubus.client.satis:
+    parent: client.satis.prototype
+    arguments:
+      $baseUri: "%env(SATIS_THRUBUS_BASE_URI)%"
+      $auth: "@thrubus.auth.satis"
+
+  Vigihdev\Command\Contracts\SatisClientManagerInterface:
+    public: true
+    class: 'Vigihdev\Command\Service\SatisClientManagerService'
+    arguments:
+      $clients:
+        thrubus: "@thrubus.client.satis"
+        local: "@local.client.satis"
+      $encryptor: '@Vigihdev\Encryption\Contracts\EnvironmentEncryptorServiceContract'

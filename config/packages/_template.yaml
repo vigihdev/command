@@ -1,0 +1,18 @@
+# template.yaml
+services:
+  auth.satis.prototype:
+    abstract: true
+    shared: false
+    class: 'Vigihdev\Command\DTOs\AuthSatisDto'
+    arguments:
+      $username: ~
+      $password: ~
+
+  client.satis.prototype:
+    abstract: true
+    shared: false
+    class: 'Vigihdev\Command\DTOs\ClientSatisDto'
+    arguments:
+      $baseUri: ~
+      $timeout: 120
+      $auth: ~
