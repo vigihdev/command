@@ -7,6 +7,7 @@ require __DIR__ . '/../vendor/autoload.php';
 use Symfony\Component\Console\Application;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\Filesystem\Path;
+use Vigihdev\Command\Console\Composer\{UpdateComposerCommand};
 use Vigihdev\Command\Console\Git\{PushGitCommand};
 use Vigihdev\Command\Console\Repository\ListRepositoryCommand;
 use Vigihdev\Command\Console\Satis\{ThrubusSatisBuildCommand, LocalSatisBuildCommand, BuildSatisCommand};
@@ -60,6 +61,9 @@ $app->add(new EnvironmentBeautifulCommand());
 
 // Repository Group
 $app->add(new ListRepositoryCommand());
+
+// Repository Group
+$app->add(new UpdateComposerCommand());
 
 // Vscode Group
 $app->add(new OpenRepositoryVscodeCommand());

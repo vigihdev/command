@@ -32,7 +32,11 @@ final class OpenProjectVscodeCommand extends AbstractVscodeCommand
                 'Project specific by name',
                 null,
                 function () {
-                    return array_keys($this->getProjectMap());
+                    return array_merge(
+                        [],
+                        array_keys($this->getProjectMap()),
+                        array_keys($this->getProjectNpmMap()),
+                    );
                 }
             )
             ->setHelp(
@@ -46,7 +50,7 @@ final class OpenProjectVscodeCommand extends AbstractVscodeCommand
 
         $io = new SymfonyStyle($input, $output);
         $projectName = $input->getArgument('name');
-        $cwdList = $this->getProjectMap();
+        $cwdList = array_merge($this->getProjectMap(), $this->getProjectNpmMap());
 
         if (!isset($cwdList[$projectName])) {
             $available = implode(', ', array_keys($cwdList));

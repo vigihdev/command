@@ -43,4 +43,21 @@ abstract class AbstractVscodeCommand extends Command
         $packages = json_decode($packages, true);
         return is_array($packages) ? $packages : [];
     }
+
+    /**
+     *
+     * @return array<string,string>
+     */
+    protected function getProjectNpmMap(): array
+    {
+
+        $filepath = Path::join(getenv('ABSPATH'), getenv('VSCODE_RESOURCE'), "npm-project.json");
+        if (!file_exists($filepath)) {
+            throw new \RuntimeException("Project file not found: $filepath");
+        }
+
+        $packages = file_get_contents($filepath);
+        $packages = json_decode($packages, true);
+        return is_array($packages) ? $packages : [];
+    }
 }
