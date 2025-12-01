@@ -34,7 +34,10 @@ final class PushGitCommand extends AbstractGitCommand
                 'Push specific repository by name',
                 null,
                 function () {
-                    return array_keys($this->getRepositoryMap());
+                    return array_merge(
+                        array_keys($this->getRepositoryMap()),
+                        array_keys($this->getRepositoryNpmMap())
+                    );
                 }
             )
             ->setHelp(
@@ -68,7 +71,10 @@ final class PushGitCommand extends AbstractGitCommand
 
     private function processSpecificRepository(SymfonyStyle $io, string $repositoryName): int
     {
-        $cwdList = $this->getRepositoryMap();
+        $cwdList = array_merge(
+            $this->getRepositoryMap(),
+            $this->getRepositoryNpmMap(),
+        );
 
         if (!isset($cwdList[$repositoryName])) {
             $available = implode(', ', array_keys($cwdList));
@@ -88,7 +94,7 @@ final class PushGitCommand extends AbstractGitCommand
             return Command::FAILURE;
         }
 
-        $io->note("Pushing repository: $repositoryName");
+        $io->note("Pushing repository: $repositoryName On Path {$basepath}");
         return $this->processPush($io, $basepath, $repositoryName);
     }
 

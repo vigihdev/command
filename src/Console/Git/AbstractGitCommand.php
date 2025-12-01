@@ -33,6 +33,25 @@ abstract class AbstractGitCommand extends Command
 
     /**
      * 
+     *
+     * @return array<string,string>
+     */
+    protected function getRepositoryNpmMap(): array
+    {
+
+        $filepath = Path::join(getenv('ABSPATH'), getenv('GIT_RESOURCE'), "npm-repository.json");
+        if (!file_exists($filepath)) {
+            throw new \RuntimeException("Repository file not found: $filepath");
+        }
+
+        $packages = file_get_contents($filepath);
+        $packages = json_decode($packages, true);
+        return is_array($packages) ? $packages : [];
+    }
+
+
+    /**
+     * 
      * Get packages from json file
      * 
      * @param string $filename
