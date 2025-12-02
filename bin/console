@@ -11,6 +11,7 @@ use Vigihdev\Command\Console\Composer\{UpdateComposerCommand};
 use Vigihdev\Command\Console\Git\{PushGitCommand};
 use Vigihdev\Command\Console\Repository\ListRepositoryCommand;
 use Vigihdev\Command\Console\Satis\{ThrubusSatisBuildCommand, LocalSatisBuildCommand, BuildSatisCommand};
+use Vigihdev\Command\Console\Terminal\{HyperOpenCommand, ItermOpenCommand};
 use Vigihdev\Command\Console\Vscode\{OpenProjectVscodeCommand, OpenRepositoryVscodeCommand};
 use Vigihdev\Command\Contracts\SatisClientManagerInterface;
 use VigihDev\SymfonyBridge\Config\ConfigBridge;
@@ -68,5 +69,9 @@ $app->add(new UpdateComposerCommand());
 // Vscode Group
 $app->add(new OpenRepositoryVscodeCommand());
 $app->add(new OpenProjectVscodeCommand());
+
+// Terminal Group
+$app->add(new ItermOpenCommand());
+$app->add(new HyperOpenCommand());
 
 $app->run();
