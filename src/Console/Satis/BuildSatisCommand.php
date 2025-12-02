@@ -9,6 +9,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\{InputArgument, InputOption, InputInterface};
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 use Vigihdev\Command\Contracts\SatisClientManagerInterface;
 
@@ -31,7 +32,7 @@ final class BuildSatisCommand extends AbstractSatisCommand
         $this
             ->addArgument(
                 'packages',
-                InputArgument::REQUIRED | InputArgument::IS_ARRAY,
+                InputArgument::IS_ARRAY | InputArgument::OPTIONAL,
                 'Package names to build (omit to build all packages)',
                 null,
                 function () {
@@ -54,8 +55,22 @@ final class BuildSatisCommand extends AbstractSatisCommand
         $io = new SymfonyStyle($input, $output);
         $packages = $input->getArgument('packages');
 
+        // handle empty packages search local composer
+        $composerJson = Path::join(getcwd() ?? '', 'composer.json');
+        if (empty($packages) && is_file($composerJson)) {
+            $composer = json_decode(file_get_contents($composerJson));
+            $packages[] = $composer->name;
+        }
+
+        if (empty($packages)) {
+            $io->error("Tidak ada package untuk di build");
+            return Command::FAILURE;
+        }
+
         $io->title('Satis Build Process');
-        $io->writeln(sprintf('Searching for packages: <info>%s</info>', implode(', ', $packages)));
+        $io->writeln(
+            sprintf('Searching for packages: <info>%s</info>', implode(', ', $packages))
+        );
 
         $availablePackages = $this->findAvailablePackages($packages, $io);
 
