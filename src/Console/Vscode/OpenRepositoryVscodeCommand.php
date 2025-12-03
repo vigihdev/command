@@ -11,6 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
+use Vigihdev\Command\DTOs\Repository\RepositoryInfoDto;
 
 #[AsCommand(
     name: 'vscode:open-repo',
@@ -31,9 +32,7 @@ final class OpenRepositoryVscodeCommand extends AbstractVscodeCommand
                 InputArgument::REQUIRED,
                 'Push specific repository by name',
                 null,
-                function () {
-                    return array_keys($this->getRepositoryMap());
-                }
+                $this->getRepositoryListAutocomplete()
             )
             ->setHelp(
                 <<<'HELP'
@@ -46,10 +45,17 @@ final class OpenRepositoryVscodeCommand extends AbstractVscodeCommand
 
         $io = new SymfonyStyle($input, $output);
         $repositoryName = $input->getArgument('repository');
-        $cwdList = $this->getRepositoryMap();
+        $rootPath = null;
 
-        if (!isset($cwdList[$repositoryName])) {
-            $available = implode(', ', array_keys($cwdList));
+        foreach ($this->repositoryList() as $repo) {
+            if ($repo instanceof RepositoryInfoDto && $repo->getRepository()->getName() === $repositoryName) {
+                $rootPath = $repo->getRootPath();
+            }
+        }
+
+        if (!$rootPath) {
+            $availables = array_map(fn($dto) => $dto->getRepository()->getName(), $this->repositoryList());
+            $available = implode(', ', $availables);
             $io->error("Repository '$repositoryName' not found. Available: $available");
             return Command::FAILURE;
         }
@@ -60,7 +66,8 @@ final class OpenRepositoryVscodeCommand extends AbstractVscodeCommand
             return Command::FAILURE;
         }
 
-        $basepath = Path::join($homePath, $cwdList[$repositoryName]);
+
+        $basepath = Path::join($homePath, $rootPath);
         if (!is_dir($basepath)) {
             $io->error("Repository directory not found: $basepath");
             return Command::FAILURE;
