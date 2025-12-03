@@ -31,13 +31,7 @@ final class OpenProjectVscodeCommand extends AbstractVscodeCommand
                 InputArgument::REQUIRED,
                 'Project specific by name',
                 null,
-                function () {
-                    return array_merge(
-                        [],
-                        array_keys($this->getProjectMap()),
-                        array_keys($this->getProjectNpmMap()),
-                    );
-                }
+                $this->getProjectAutocomplete()
             )
             ->setHelp(
                 <<<'HELP'
@@ -50,10 +44,11 @@ final class OpenProjectVscodeCommand extends AbstractVscodeCommand
 
         $io = new SymfonyStyle($input, $output);
         $projectName = $input->getArgument('name');
-        $cwdList = array_merge($this->getProjectMap(), $this->getProjectNpmMap());
 
-        if (!isset($cwdList[$projectName])) {
-            $available = implode(', ', array_keys($cwdList));
+        $projects = array_filter($this->listProjectNames(), fn($dto) => $dto->getName() === $projectName);
+        if (empty($projects)) {
+            $availables = array_map(fn($dto) => $dto->getName(), $this->listProjectNames());
+            $available = implode(', ', $availables);
             $io->error("Project '$projectName' not found. Available: $available");
             return Command::FAILURE;
         }
@@ -64,7 +59,8 @@ final class OpenProjectVscodeCommand extends AbstractVscodeCommand
             return Command::FAILURE;
         }
 
-        $basepath = Path::join($homePath, $cwdList[$projectName]);
+        $project = current($projects);
+        $basepath = Path::join($homePath, $project->getRootPath());
         if (!is_dir($basepath)) {
             $io->error("Project directory not found: $basepath");
             return Command::FAILURE;

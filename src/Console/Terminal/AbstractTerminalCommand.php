@@ -14,7 +14,8 @@ abstract class AbstractTerminalCommand extends Command
     private const AVAILABLE_PROJECT_NAMES = [
         'host-project',
         'npm-repository-project',
-        'composer-repository-project'
+        'composer-repository-project',
+        'wp-cli-repository-project'
     ];
 
     /**
