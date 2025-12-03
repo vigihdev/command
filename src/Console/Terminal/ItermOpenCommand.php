@@ -12,6 +12,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 use Vigihdev\Command\Contracts\Projects\ProjectInterface;
+use Vigihdev\Command\DTOs\Projects\ProjectDto;
 
 #[AsCommand(
     name: 'iterm:open',
@@ -19,11 +20,6 @@ use Vigihdev\Command\Contracts\Projects\ProjectInterface;
 )]
 final class ItermOpenCommand extends AbstractTerminalCommand
 {
-    private const AVAILABLE_PROJECT_NAMES = [
-        'host-project',
-        'npm-repository-project',
-        'composer-repository-project'
-    ];
 
     public function __construct()
     {
@@ -35,7 +31,7 @@ final class ItermOpenCommand extends AbstractTerminalCommand
         $this
             ->addArgument(
                 'name',
-                InputArgument::REQUIRED,
+                InputArgument::OPTIONAL,
                 'Project name to open in iTerm',
                 null,
                 $this->getProjectAutocomplete()
@@ -61,11 +57,21 @@ final class ItermOpenCommand extends AbstractTerminalCommand
         $io = new SymfonyStyle($input, $output);
         $name = $input->getArgument('name');
 
+        if (!$name || $name === '.') {
+            return $this->openProjectInIterm(new ProjectDto(
+                name: 'cwd',
+                rootPath: Path::makeRelative(getcwd(), Path::getHomeDirectory())
+            ), $io);
+        }
+
         foreach ($this->listProjectNames() as $dto) {
             if ($dto instanceof ProjectInterface && $dto->getName() === $name) {
                 return $this->openProjectInIterm($dto, $io);
             }
         }
+
+
+
         $io->error(sprintf('Project "%s" not found!', $name));
         $io->note('Available projects:');
 

@@ -12,6 +12,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 use Vigihdev\Command\Contracts\Projects\ProjectInterface;
+use Vigihdev\Command\DTOs\Projects\ProjectDto;
 
 #[AsCommand(
     name: 'hyper:open',
@@ -30,7 +31,7 @@ final class HyperOpenCommand extends AbstractTerminalCommand
         $this
             ->addArgument(
                 'name',
-                InputArgument::REQUIRED,
+                InputArgument::OPTIONAL,
                 'Project name to open in Hyper',
                 null,
                 $this->getProjectAutocomplete()
@@ -55,6 +56,13 @@ final class HyperOpenCommand extends AbstractTerminalCommand
 
         $io = new SymfonyStyle($input, $output);
         $name = $input->getArgument('name');
+
+        if (!$name || $name === '.') {
+            return $this->openProjectInIterm(new ProjectDto(
+                name: 'cwd',
+                rootPath: Path::makeRelative(getcwd(), Path::getHomeDirectory())
+            ), $io);
+        }
 
         foreach ($this->listProjectNames() as $dto) {
             if ($dto instanceof ProjectInterface && $dto->getName() === $name) {
