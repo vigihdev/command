@@ -63,7 +63,13 @@ final class ItermOpenCommand extends AbstractTerminalCommand
 
         foreach ($this->listProjectNames() as $dto) {
             if ($dto instanceof ProjectInterface && $dto->getName() === $name) {
-                return $this->openProjectInIterm($dto, $io);
+                $basePath = Path::join(Path::getHomeDirectory(), $dto->getRootPath());
+
+                if (!is_dir($basePath)) {
+                    $io->error(sprintf('Directory does not exist: %s', $basePath));
+                    return Command::FAILURE;
+                }
+                return $this->openWithFallback($basePath, $io);
             }
         }
         $io->error(sprintf('Project "%s" not found!', $name));
