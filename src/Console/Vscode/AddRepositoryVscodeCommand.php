@@ -6,18 +6,17 @@ namespace Vigihdev\Command\Console\Vscode;
 
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\{InputArgument, InputOption, InputInterface};
+use Symfony\Component\Console\Input\{InputArgument, InputInterface};
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Path;
-use Throwable;
 use Vigihdev\Command\Contracts\ExceptionHandlerInterface;
-use Vigihdev\Command\DTOs\Repository\RepositoryDto;
-use Vigihdev\Command\DTOs\Repository\RepositoryInfoDto;
+use Vigihdev\Command\DTOs\Repository\{RepositoryDto, RepositoryInfoDto};
 use Vigihdev\Command\Exceptions\{ExceptionHandler};
 use Vigihdev\Command\Factory\DtoTransformFactory;
 use Vigihdev\Command\Validators\{DirectoryValidator, FileValidator, GitDirectoryValidator, GitValidator};
 use Vigihdev\Support\{Collection, File};
+use Throwable;
 
 #[AsCommand(
     name: 'vscode:add-repo',
@@ -87,8 +86,12 @@ final class AddRepositoryVscodeCommand extends AbstractVscodeCommand
 
         try {
             DirectoryValidator::validate(path: $localPathAbs)->mustExist();
-            FileValidator::validate(filepath: $this->repoFilepathJson)->mustExist();
-            GitDirectoryValidator::validate(path: $localPathAbs)->mustBeInitialized();
+            FileValidator::validate(filepath: $this->repoFilepathJson)
+                ->mustExist()
+                ->mustBeJson();
+            GitDirectoryValidator::validate(path: $localPathAbs)
+                ->mustBeInitialized()
+                ->mustBeValidGitUrl($repositoryUrl);
         } catch (Throwable $e) {
             $this->exceptionHandler->handle($e, $io);
             return Command::FAILURE;
@@ -102,7 +105,6 @@ final class AddRepositoryVscodeCommand extends AbstractVscodeCommand
         $this->repoRootPath = $localPath;
 
         $this->process($io, $collection);
-
         return Command::SUCCESS;
     }
 
@@ -117,7 +119,6 @@ final class AddRepositoryVscodeCommand extends AbstractVscodeCommand
         $name = preg_replace('/\.\w+$/', '', trim($name, '/'));
         $repository = new RepositoryDto(name: $name, url: $this->repositoryUrl);
         $newDto = new RepositoryInfoDto(repository: $repository, rootPath: $this->repoRootPath);
-
 
         $exists = $collection->filter(fn($dto) => $dto->getRepository()->getUrl() === $this->repositoryUrl);
         if ($exists->count() > 0) {

@@ -14,6 +14,11 @@ final class GitException extends \RuntimeException
         parent::__construct($message, $code, $previous);
     }
 
+    public static function directoryGitNotFound($path): self
+    {
+        return new self("Directory (.git) tidak tersedia di : '{$path}'");
+    }
+
     public static function cloneFailed(string $repoUrl, string $error): self
     {
         return new self("Gagal clone repository '{$repoUrl}': {$error}");
