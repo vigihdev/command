@@ -12,7 +12,7 @@ use Vigihdev\Command\Console\Git\{PushGitCommand};
 use Vigihdev\Command\Console\Repository\ListRepositoryCommand;
 use Vigihdev\Command\Console\Satis\{ThrubusSatisBuildCommand, LocalSatisBuildCommand, BuildSatisCommand};
 use Vigihdev\Command\Console\Terminal\{HyperOpenCommand, ItermOpenCommand, TerminalOpenCommand};
-use Vigihdev\Command\Console\Vscode\{OpenProjectVscodeCommand, OpenRepositoryVscodeCommand};
+use Vigihdev\Command\Console\Vscode\{AddProjectVscodeCommand, AddRepositoryVscodeCommand, OpenProjectVscodeCommand, OpenRepositoryVscodeCommand};
 use Vigihdev\Command\Contracts\SatisClientManagerInterface;
 use VigihDev\SymfonyBridge\Config\ConfigBridge;
 use VigihDev\SymfonyBridge\Config\Service\ServiceLocator;
@@ -69,6 +69,8 @@ $app->add(new UpdateComposerCommand());
 // Vscode Group
 $app->add(new OpenRepositoryVscodeCommand());
 $app->add(new OpenProjectVscodeCommand());
+$app->add(new AddRepositoryVscodeCommand());
+$app->add(new AddProjectVscodeCommand());
 
 // Terminal Group
 $app->add(new ItermOpenCommand());
