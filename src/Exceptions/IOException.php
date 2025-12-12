@@ -1,6 +1,6 @@
 <?php
 
-namespace Vigihdev\Command\Exceptions\IO;
+namespace Vigihdev\Command\Exceptions;
 
 use InvalidArgumentException;
 use Throwable;

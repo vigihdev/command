@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Vigihdev\Command\Exceptions\IO;
+namespace Vigihdev\Command\Exceptions;
 
 use Throwable;
 

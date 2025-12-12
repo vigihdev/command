@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Vigihdev\Command\Validators;
 
-use Vigihdev\Command\Exceptions\IO\DirectoryException;
+use Vigihdev\Command\Exceptions\DirectoryException;
 
 final class DirectoryValidator
 {

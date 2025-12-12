@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Vigihdev\Command\Validators;
 
-use Vigihdev\Command\Exceptions\IO\FileException;
+use Vigihdev\Command\Exceptions\FileException;
 
 final class FileValidator
 {

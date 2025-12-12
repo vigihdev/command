@@ -10,9 +10,12 @@ use Symfony\Component\Console\Input\{InputArgument, InputOption, InputInterface}
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Path;
-use Vigihdev\Command\Enums\ProjectEnum;
-use Vigihdev\Command\Exceptions\IO\{DirectoryException, FileException};
-use Vigihdev\Command\Validators\{DirectoryValidator, FileValidator};
+use Throwable;
+use Vigihdev\Command\Contracts\ExceptionHandlerInterface;
+use Vigihdev\Command\DTOs\Repository\RepositoryInfoDto;
+use Vigihdev\Command\Exceptions\{ExceptionHandler};
+use Vigihdev\Command\Factory\DtoTransformFactory;
+use Vigihdev\Command\Validators\{DirectoryValidator, FileValidator, GitDirectoryValidator, GitValidator};
 use Vigihdev\Support\{Collection, File};
 
 #[AsCommand(
@@ -21,20 +24,18 @@ use Vigihdev\Support\{Collection, File};
 )]
 final class AddRepositoryVscodeCommand extends AbstractVscodeCommand
 {
+
+    private ExceptionHandlerInterface $exceptionHandler;
     public function __construct()
     {
+
         parent::__construct();
+        $this->exceptionHandler = new ExceptionHandler();
     }
 
     protected function configure(): void
     {
         $this
-            ->addArgument(
-                'name',
-                InputArgument::REQUIRED,
-                'Nama proyek yang akan ditambahkan',
-                null,
-            )
             ->addArgument(
                 'local-path',
                 InputArgument::REQUIRED,
@@ -73,24 +74,27 @@ final class AddRepositoryVscodeCommand extends AbstractVscodeCommand
         $localPath = $input->getArgument('local-path');
         $repositoryUrl = $input->getArgument('repository-url');
 
-        $localPathAbsolute = Path::join(getenv('HOME') ?? '', $localPath);
+        $localPathAbs = Path::join(getenv('HOME') ?? '', $localPath);
         $filepathRepo = Path::join(getenv('ABSPATH'), getenv('REPO_RESOURCE'), 'repository-list-info.json');
 
         try {
-            DirectoryValidator::validate(path: $localPathAbsolute)->mustExist();
+            DirectoryValidator::validate(path: $localPathAbs)->mustExist();
             FileValidator::validate(filepath: $filepathRepo)->mustExist();
-        } catch (DirectoryException $e) {
-            $io->error($e->getMessage());
-            return Command::FAILURE;
-        } catch (FileException $e) {
-            $io->error($e->getMessage());
+            GitDirectoryValidator::validate(path: $localPathAbs)->mustBeInitialized();
+            // GitValidator::validate(path: $repositoryUrl)->mustBeValidUrl();
+        } catch (Throwable $e) {
+            $this->exceptionHandler->handle($e, $io);
             return Command::FAILURE;
         }
 
-        // $this->process($io, $projectName, $label, $path, $filepathLabel);
+        /** @var RepositoryInfoDto[] $repoDto  */
+        $repoDto = DtoTransformFactory::fromFileJson($filepathRepo, RepositoryInfoDto::class);
+        $collection = new Collection($repoDto);
+
+        $this->process($io, $localPath, $repositoryUrl);
 
         return Command::SUCCESS;
     }
 
-    private function process() {}
+    private function process(SymfonyStyle $io, Collection $collection) {}
 }
