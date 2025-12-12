@@ -10,13 +10,12 @@ final class UrlValidator
 {
     private const MAX_URL_LENGTH = 2048;
 
-    private function __construct() {} // biar gak bisa di-instantiate
+    private function __construct() {}
 
     /**
      * Validasi URL Git Repository URL
-     * Lempar UrlException kalau gak lolos
      */
-    public static function gitRepository(string $url): void
+    private static function gitRepository(string $url): void
     {
         self::notEmpty($url);
         self::notTooLong($url);
@@ -44,8 +43,7 @@ final class UrlValidator
         throw UrlException::gitNotSupported($url);
     }
 
-    // Kalau kamu cuma butuh validasi URL biasa (bukan khusus Git)
-    public static function any(string $url): void
+    private static function any(string $url): void
     {
         self::notEmpty($url);
         self::notTooLong($url);
