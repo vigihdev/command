@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Path;
 use Vigihdev\Command\Enums\ProjectEnum;
-use Vigihdev\Command\Exceptions\IO\{DirectoryException, FileException};
+use Vigihdev\Command\Exceptions\{DirectoryException, FileException};
 use Vigihdev\Command\Validators\{DirectoryValidator, FileValidator};
 use Vigihdev\Support\{Collection, File};
 

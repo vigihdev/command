@@ -12,6 +12,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Path;
 use Throwable;
 use Vigihdev\Command\Contracts\ExceptionHandlerInterface;
+use Vigihdev\Command\DTOs\Repository\RepositoryDto;
 use Vigihdev\Command\DTOs\Repository\RepositoryInfoDto;
 use Vigihdev\Command\Exceptions\{ExceptionHandler};
 use Vigihdev\Command\Factory\DtoTransformFactory;
@@ -26,11 +27,17 @@ final class AddRepositoryVscodeCommand extends AbstractVscodeCommand
 {
 
     private ExceptionHandlerInterface $exceptionHandler;
+
+    private string $repoRootPath;
+    private string $repoFilepathJson;
+    private string $repositoryUrl;
+
     public function __construct()
     {
 
         parent::__construct();
         $this->exceptionHandler = new ExceptionHandler();
+        $this->repoFilepathJson = Path::join(getenv('ABSPATH'), getenv('REPO_RESOURCE'), 'repository-list-info.json');
     }
 
     protected function configure(): void
@@ -67,6 +74,8 @@ final class AddRepositoryVscodeCommand extends AbstractVscodeCommand
                  HELP
             );
     }
+
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
 
@@ -75,26 +84,64 @@ final class AddRepositoryVscodeCommand extends AbstractVscodeCommand
         $repositoryUrl = $input->getArgument('repository-url');
 
         $localPathAbs = Path::join(getenv('HOME') ?? '', $localPath);
-        $filepathRepo = Path::join(getenv('ABSPATH'), getenv('REPO_RESOURCE'), 'repository-list-info.json');
 
         try {
             DirectoryValidator::validate(path: $localPathAbs)->mustExist();
-            FileValidator::validate(filepath: $filepathRepo)->mustExist();
+            FileValidator::validate(filepath: $this->repoFilepathJson)->mustExist();
             GitDirectoryValidator::validate(path: $localPathAbs)->mustBeInitialized();
-            // GitValidator::validate(path: $repositoryUrl)->mustBeValidUrl();
         } catch (Throwable $e) {
             $this->exceptionHandler->handle($e, $io);
             return Command::FAILURE;
         }
 
         /** @var RepositoryInfoDto[] $repoDto  */
-        $repoDto = DtoTransformFactory::fromFileJson($filepathRepo, RepositoryInfoDto::class);
+        $repoDto = DtoTransformFactory::fromFileJson($this->repoFilepathJson, RepositoryInfoDto::class);
         $collection = new Collection($repoDto);
 
-        $this->process($io, $localPath, $repositoryUrl);
+        $this->repositoryUrl = $repositoryUrl;
+        $this->repoRootPath = $localPath;
+
+        $this->process($io, $collection);
 
         return Command::SUCCESS;
     }
 
-    private function process(SymfonyStyle $io, Collection $collection) {}
+
+    /**
+     * @param Collection<RepositoryInfoDto> $collection
+     */
+    private function process(SymfonyStyle $io, Collection $collection)
+    {
+
+        $name = parse_url($this->repositoryUrl)['path'] ?? '';
+        $name = preg_replace('/\.\w+$/', '', trim($name, '/'));
+        $repository = new RepositoryDto(name: $name, url: $this->repositoryUrl);
+        $newDto = new RepositoryInfoDto(repository: $repository, rootPath: $this->repoRootPath);
+
+
+        $exists = $collection->filter(fn($dto) => $dto->getRepository()->getUrl() === $this->repositoryUrl);
+        if ($exists->count() > 0) {
+            $localPath = Path::join(getenv('HOME'), $this->repoRootPath);
+            $io->warning([
+                "Repository {$this->repositoryUrl} Sudah ada.",
+                "Root Path : {$exists->first()->getRootPath()}",
+                "Name : {$exists->first()->getRepository()->getName()}",
+                "Path : {$localPath}",
+            ]);
+            return;
+        }
+
+        $json = $collection
+            ->map(fn($dto) => $dto->toArray())
+            ->add($newDto->toArray())
+            ->toJson();
+
+        if ((bool) File::put($this->repoFilepathJson, $json)) {
+            $io->definitionList("Add data in {$this->repoFilepathJson}");
+
+            $io->block([
+                'Project Added Successfully!',
+            ], 'OK', 'fg=black;bg=green', ' ', true);
+        }
+    }
 }

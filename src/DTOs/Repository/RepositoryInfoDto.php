@@ -6,11 +6,12 @@ namespace Vigihdev\Command\DTOs\Repository;
 
 use Vigihdev\Command\Contracts\Repository\RepositoryInfoInterface;
 use Vigihdev\Command\Contracts\Repository\RepositoryInterface;
+use Vigihdev\Command\DTOs\BaseDto;
 
 /**
  * Class RepositoryInfoDto - Menyimpan informasi dasar tentang repository
  */
-final class RepositoryInfoDto implements RepositoryInfoInterface
+final class RepositoryInfoDto extends BaseDto implements RepositoryInfoInterface
 {
 
 
